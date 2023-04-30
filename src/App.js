@@ -1,7 +1,7 @@
 //import './App.css';
 import React from "react";
 import { TodoCounter } from "./TodoCounter";
-import { createTodoButton } from "./CreateTodoButton";
+import { CreateTodoButton } from "./CreateTodoButton";
 import { TodoItem } from "./TodoItem";
 import { TodoList } from "./TodoList";
 import { TodoSearch } from "./TodoSearch";
@@ -24,10 +24,14 @@ function App() {
         {/* Each todo that the user will create. Will be reutilized each time an user creates a todo*/}
         {/*Using map to render each ToDo item in todos*/}
         {todos.map(todo => (
-          <TodoItem key={todo.text} text={todo.text} />
+          <TodoItem
+            key={todo.text}
+            text={todo.text}
+            completed={todo.completed}
+          />
         ))}
       </TodoList>
-      <createTodoButton /> {/*Opens the modal to create new todos in the future*/}
+      <CreateTodoButton /> {/*Opens the modal to create new todos in the future*/}
     </React.Fragment >
   );
 }
