@@ -1,19 +1,15 @@
-import React from "react";
-import "./TodoSearch.css"
-
+import React from 'react';
+import './TodoSearch.css';
 function TodoSearch() {
+    const [searchValue, setSearchValue] = React.useState('');
     const onSearchValueChange = (event) => {
         console.log(event.target.value);
+        setSearchValue(event.target.value);
     };
-    return (
-        //The value we write here, changes the TodoItems
-        <input
-            className="TodoSearch"
-            placeholder="sample text"
-            onChange={onSearchValueChange}
-        />
-
-    );
+    return [<input
+        className="TodoSearch"
+        placeholder="Cebolla"
+        value={searchValue}
+        onChange={onSearchValueChange} />, <p>{searchValue}</p>];
 }
-
-export { TodoSearch }
+export { TodoSearch };
