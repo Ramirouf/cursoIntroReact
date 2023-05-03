@@ -2,14 +2,26 @@
 import React from "react";
 import { AppUI } from "./AppUI";
 
-const defaultTodos = [
-  { text: "Write email", completed: true },
-  { text: "Finish course: Intro to React", completed: true },
-  { text: "Finish Platzi's B2-C1 path", completed: false },
-];
+// const defaultTodos = [
+//   { text: "Write email", completed: true },
+//   { text: "Finish course: Intro to React", completed: true },
+//   { text: "Finish Platzi's B2-C1 path", completed: false },
+// ];
 
 function App() {
-  const [todos, setTodos] = React.useState(defaultTodos);
+
+  //Call localStorage and get item, which comes in string format
+  const localStorageTodos = localStorage.getItem("TODOS_V1");
+  //There are 2 options. The user is new or not. If new, create an empty array, otherwise, retrieve the existing one from localStorage
+  let parsedTodos; //This will be sent to React.useState
+  if (localStorageTodos) {
+    parsedTodos = JSON.parse(localStorageTodos); //Parse the string
+  } else {
+    parsedTodos = [];
+    localStorage.setItem("TODOS_V1", JSON.stringify(parsedTodos)); //);
+  }
+
+  const [todos, setTodos] = React.useState(parsedTodos);
   const [searchValue, setSearchValue] = React.useState("");
 
   const completedTodos = todos.filter(todo => !!todo.completed).length;
@@ -28,11 +40,18 @@ function App() {
     })
   }
 
+  //Function to update the state AND store the tasks in localStorage
+  const saveTodos = (newTodos) => {
+    const stringifiedTodos = JSON.stringify(newTodos);
+    localStorage.setItem("TODOS_V1", stringifiedTodos);
+    setTodos(newTodos);
+  }
+
   const completeTodo = (text) => {
     const todoIndex = todos.findIndex(todo => todo.text === text);
     const newTodos = [...todos];
     newTodos[todoIndex].completed = true;
-    setTodos(newTodos);
+    saveTodos(newTodos);
     /*
     newTodos[todoIndex] = {
       text: newTodos[todoIndex].text,
@@ -43,7 +62,7 @@ function App() {
     const todoIndex = todos.findIndex(todo => todo.text === text);
     const newTodos = [...todos];
     newTodos.splice(todoIndex, 1); // Remove the todo
-    setTodos(newTodos); //Update the state
+    saveTodos(newTodos); //Update the state
   }
   return (
     <AppUI
