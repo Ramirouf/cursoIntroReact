@@ -8,20 +8,42 @@ import { AppUI } from "./AppUI";
 //   { text: "Finish Platzi's B2-C1 path", completed: false },
 // ];
 
-function App() {
-
+// Create a custom React hook to decouple logic from the App component
+// It's a function, and for rule, it should start with "use"
+// From now on, we'l use the logic defined in the "useLocalStorage" hook
+// We'll use "react use state" only in the "useLocalStorage" hook
+//Returns the items in local storage
+function useLocalStorage(itemName, initialValue) {
   //Call localStorage and get item, which comes in string format
-  const localStorageTodos = localStorage.getItem("TODOS_V1");
+  const localStorageItem = localStorage.getItem(itemName);
   //There are 2 options. The user is new or not. If new, create an empty array, otherwise, retrieve the existing one from localStorage
-  let parsedTodos; //This will be sent to React.useState
-  if (localStorageTodos) {
-    parsedTodos = JSON.parse(localStorageTodos); //Parse the string
+  let parsedItem; //This will be sent to React.useState
+  if (localStorageItem) {
+    parsedItem = JSON.parse(localStorageItem); //Parse the string
   } else {
-    parsedTodos = [];
-    localStorage.setItem("TODOS_V1", JSON.stringify(parsedTodos)); //);
+    parsedItem = initialValue;
+    localStorage.setItem(itemName, JSON.stringify(parsedItem)); //);
   }
 
-  const [todos, setTodos] = React.useState(parsedTodos);
+  const [item, setItem] = React.useState(parsedItem);
+  //Function to update the state AND store the tasks in localStorage
+  const saveItem = (newItem) => {
+    const stringifiedItem = JSON.stringify(newItem);
+    localStorage.setItem(itemName, stringifiedItem);
+    setItem(newItem);
+  }
+
+  return [
+    item,
+    saveItem
+  ];
+}
+
+
+function App() {
+  const [todos, saveTodos] = useLocalStorage("TODOS_V1", []);
+
+
   const [searchValue, setSearchValue] = React.useState("");
 
   const completedTodos = todos.filter(todo => !!todo.completed).length;
@@ -40,12 +62,7 @@ function App() {
     })
   }
 
-  //Function to update the state AND store the tasks in localStorage
-  const saveTodos = (newTodos) => {
-    const stringifiedTodos = JSON.stringify(newTodos);
-    localStorage.setItem("TODOS_V1", stringifiedTodos);
-    setTodos(newTodos);
-  }
+
 
   const completeTodo = (text) => {
     const todoIndex = todos.findIndex(todo => todo.text === text);
