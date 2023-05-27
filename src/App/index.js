@@ -14,34 +14,62 @@ import { AppUI } from "./AppUI";
 // We'll use "react use state" only in the "useLocalStorage" hook
 //Returns the items in local storage
 function useLocalStorage(itemName, initialValue) {
-  //Call localStorage and get item, which comes in string format
-  const localStorageItem = localStorage.getItem(itemName);
-  //There are 2 options. The user is new or not. If new, create an empty array, otherwise, retrieve the existing one from localStorage
-  let parsedItem; //This will be sent to React.useState
-  if (localStorageItem) {
-    parsedItem = JSON.parse(localStorageItem); //Parse the string
-  } else {
-    parsedItem = initialValue;
-    localStorage.setItem(itemName, JSON.stringify(parsedItem)); //);
-  }
+  const [error, setError] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
+  //initialValue is the default state
+  const [item, setItem] = React.useState(initialValue);
 
-  const [item, setItem] = React.useState(parsedItem);
+  React.useEffect(() => {
+    setTimeout(() => {
+      try {
+        //Call localStorage and get item, which comes in string format
+        const localStorageItem = localStorage.getItem(itemName);
+        //There are 2 options. The user is new or not. If new, create an empty array, otherwise, retrieve the existing one from localStorage
+        let parsedItem; //This will be sent to React.useState
+        if (localStorageItem) {
+          parsedItem = JSON.parse(localStorageItem); //Parse the string
+        } else {
+          parsedItem = initialValue;
+          localStorage.setItem(itemName, JSON.stringify(parsedItem)); //);
+        }
+
+        setItem(parsedItem);
+        setLoading(false)
+      } catch (error) {
+        setError(error)
+      }
+    }, 1000)
+  });
+
+
+
   //Function to update the state AND store the tasks in localStorage
   const saveItem = (newItem) => {
-    const stringifiedItem = JSON.stringify(newItem);
-    localStorage.setItem(itemName, stringifiedItem);
-    setItem(newItem);
+    try {
+      const stringifiedItem = JSON.stringify(newItem);
+      localStorage.setItem(itemName, stringifiedItem);
+      setItem(newItem);
+    } catch (error) {
+      setError(error)
+    }
   }
 
-  return [
+  return {
     item,
-    saveItem
-  ];
+    saveItem,
+    loading,
+    error,
+  };
 }
 
 
 function App() {
-  const [todos, saveTodos] = useLocalStorage("TODOS_V1", []);
+  const {
+    item: todos,
+    saveItem: saveTodos,
+    loading,
+    error
+  } = useLocalStorage("TODOS_V1", []);
 
 
   const [searchValue, setSearchValue] = React.useState("");
@@ -81,8 +109,19 @@ function App() {
     newTodos.splice(todoIndex, 1); // Remove the todo
     saveTodos(newTodos); //Update the state
   }
+
+  // console.log("Render before useEffect");
+
+  // React.useEffect(() => {
+  //   console.log("use effect");
+  // }, []); //If an empty array is sent, the effect will only be executed on the first render
+
+  // console.log("Render after useEffect");
+
   return (
     <AppUI
+      loading={loading}
+      error={error}
       totalTodos={totalTodos}
       completedTodos={completedTodos}
       searchValue={searchValue}

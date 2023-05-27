@@ -6,6 +6,8 @@ import { TodoList } from "../TodoList";
 import { TodoSearch } from "../TodoSearch";
 
 function AppUI({
+    loading,
+    error,
     totalTodos,
     completedTodos,
     searchedTodos,
@@ -27,6 +29,10 @@ function AppUI({
                 setSearchValue={setSearchValue}
             />
             <TodoList> {/*Container of TODOs*/}
+                {error && <p>There was en error</p> /*If error is true, show p*/}
+                {loading && <p>Loading...</p> /*If loading is true, show p*/}
+                {(!loading && !searchedTodos.length) && <p>Create your first ToDo</p> /*It not loading, and searchedTodos is empty, render p*/}
+
                 {/* Each todo that the user will create. Will be reutilized each time an user creates a todo*/}
                 {/*Using map to render each ToDo item in todos*/}
                 {searchedTodos.map(todo => (
